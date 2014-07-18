@@ -1,5 +1,9 @@
 package main
 
+import (
+	"time"
+)
+
 func CheckSum(buf []byte) uint16 {
 	var sum uint32
 	for i := 0; i < len(buf)-1; i += 2 {
@@ -36,4 +40,21 @@ func MakeEchoRequest(seqNo int, length int, id1 byte, id2 byte) [512]byte {
 	msg[2] = byte(check & 0xff)
 	msg[3] = byte(check >> 8)
 	return msg
+}
+
+func ComputeStats(durations []time.Duration) (time.Duration, time.Duration, time.Duration, time.Duration) {
+	var total time.Duration
+	min := durations[0]
+	max := durations[0]
+	for _, duration := range durations {
+		total += duration
+		if duration > max {
+			max = duration
+		}
+		if duration < min {
+			min = duration
+		}
+	}
+
+	return total, min, max, total / time.Duration(len(durations))
 }

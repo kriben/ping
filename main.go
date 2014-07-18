@@ -48,6 +48,7 @@ Options:
 	var interval = 1 * time.Second
 	var messageLength = 8
 
+	pingTimes := []time.Duration{}
 	for i := 0; i < numPings; i++ {
 
 		msg := MakeEchoRequest(i, messageLength, id1, id2)
@@ -68,10 +69,12 @@ Options:
 			}
 
 			if response[0] == 0 {
+				duration := time.Since(startTime)
 				fmt.Printf("%d bytes from %s (%s): time=%v\n",
 					numRead,
 					host, rAddr,
-					time.Since(startTime))
+					duration)
+				pingTimes = append(pingTimes, duration)
 			}
 
 			break
@@ -79,4 +82,11 @@ Options:
 
 		time.Sleep(interval)
 	}
+
+	fmt.Printf("--- %s statistics ---\n", host)
+	total, min, max, avg := ComputeStats(pingTimes)
+	fmt.Printf("total = %v\n", total)
+	fmt.Printf("rtt min = %v\n", min)
+	fmt.Printf("rtt max = %v\n", max)
+	fmt.Printf("rtt avg = %v\n", avg)
 }
