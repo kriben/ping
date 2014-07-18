@@ -2,13 +2,29 @@ package main
 
 import (
 	"fmt"
+	"github.com/docopt/docopt-go"
 	"net"
 	"os"
+	"strconv"
 	"time"
 )
 
 func main() {
-	host := os.Args[1]
+	usage := `Ping.
+
+Usage:
+  ping [--count COUNT] DESTINATION
+
+Options:
+  -h --help                Show this message.
+  -c, --count COUNT   Send this many pings [default: 20].`
+
+	arguments, _ := docopt.Parse(usage, nil, true, "Ping", false)
+	host := arguments["DESTINATION"].(string)
+	numPings := 20
+	if arguments["--count"] != nil {
+		numPings, _ = strconv.Atoi(arguments["--count"].(string))
+	}
 
 	rAddr, err := net.ResolveIPAddr("ip4", host)
 	if err != nil {
@@ -32,7 +48,6 @@ func main() {
 	var interval = 1 * time.Second
 	var messageLength = 8
 
-	numPings := 20
 	for i := 0; i < numPings; i++ {
 
 		msg := MakeEchoRequest(i, messageLength, id1, id2)
